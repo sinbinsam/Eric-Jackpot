@@ -99,6 +99,16 @@ Function zoneMsgSend(cmd$ As String)
 
 arr = [
 	{
+		filename: "/jackpot_audio/1000jackpotmomentsago.wav",
+		QueueNext: 1,
+		ident: "1000jackpotmomentsago"
+	},
+	{
+		filename: "/jackpot_audio/1000jackpotwaytogo.wav",
+		QueueNext: 1,
+		ident: "1000jackpotwaytogo"
+	},
+	{
 		filename: "/jackpot_audio/1000Trigger.wav",
 		QueueNext: 1,
 		ident: "1000Trigger"
@@ -112,7 +122,22 @@ arr = [
 		filename: "/jackpot_audio/GenericTrigger.wav",
 		QueueNext: 1,
 		ident: "GenericTrigger"
-	}
+	},
+	{
+		filename: "/jackpot_audio/jackpotmaybenextgeneric.wav",
+		QueueNext: 1,
+		ident: "jackpotmaybenextgeneric"
+	},
+	{
+		filename: "/jackpot_audio/prettyawesomejackpotgeneric.wav",
+		QueueNext: 1,
+		ident: "prettyawesomejackpotgeneric"
+	},
+	{
+		filename: "/jackpot_audio/somebodywon1000jackpotgeneric.wav",
+		QueueNext: 1,
+		ident: "somebodywon1000jackpotgeneric"
+	},
 ]
 
 for each n in arr

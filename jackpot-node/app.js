@@ -6,12 +6,8 @@ const   sql         = require('mssql'),
         config      = require(path.join(__dirname, './sql.json')),
         app         = express();
 
-app.use(express);
 
-if (!config) {
-    console.log('config file not found, please create sql.json in root directory with these credentials:')
-    console.log('user, password, server, database')
-}
+const port = process.env.PORT || 8080
 
 
 const jackpotQuery = "\
@@ -32,7 +28,7 @@ var rule = new schedule.RecurrenceRule(); //set schedule of query
     rule.second = [new schedule.Range(0, 59, 5)];
  
 var j = schedule.scheduleJob(rule, function(){ //execute query
-  console.log('sending query');
+  //console.log('sending query');
   //sendJackpotQuery();
 });
 
@@ -54,31 +50,42 @@ function sendJackpotQuery() {
     });
 }
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+  }
+
+let tracks = [
+'1000jackpotmomentsago', 
+'1000jackpotwaytogo', 
+'1000Trigger', 
+'1000Trigger2', 
+'GenericTrigger', 
+'jackpotmaybenextgeneric', 
+'prettyawesomejackpotgeneric', 
+'somebodywon1000jackpotgeneric'
+];
 
 
-function sendPlayCommand(cmd) {
+function sendPlayCommand() {
     axios({
         method: 'get',
-        url: '/rest/control',
-        data: {
-          cmd: cmd
-        }
+        url: 'http://192.168.1.5:9000/rest/control?cmd=' + tracks[getRandomInt(tracks.length)],
       })
       .then((res) => {
-          if (res.status == 200) {
-              return "success"
+          console.log(res.status)
+          if (res.status === 200) {
+              return true
           } else {
-              return "failure"
+              return false
           }
       })
       return true
 }
 
-  
-    
-  
     app.get('/eric', (req, res) => {
-        if (sendPlayCommand('TEST FILE NAME HERE') == "success") {
+        let playCommand = sendPlayCommand()
+        console.log(playCommand)
+        if (playCommand == true) {
             res.send('sent test command');
         } else {
             res.send("there was a problem, the device didn't respond")
@@ -86,7 +93,11 @@ function sendPlayCommand(cmd) {
       
     })
   
-
-    app.listen(9090, function() {
-      console.log('Example app listening on port 9090!');
+    app.listen(port, (err) => {
+        if (err) {
+            console.log('there was an error starting the server')
+            console.log(err)
+            } else {
+                console.log('Server started! V2 At http://localhost:' + port);
+            }
     });
