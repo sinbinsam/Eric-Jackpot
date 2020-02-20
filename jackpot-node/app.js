@@ -23,41 +23,69 @@ CONVERT(money, (PenniesWon / 100.00))AS 'WinInDollars',gamename\
 
 //schedule query
 
+
+
 var rule = new schedule.RecurrenceRule(); //set schedule of query
     rule.dayOfWeek = [new schedule.Range(0, 6)];
     rule.minute = [new schedule.Range(0, 59, 3)];
  
-var j = schedule.scheduleJob(rule, function(){ //execute query
-    console.log('3 minute timer')
-    sendJackpotQuery();
+ 
+
+
+    sql.on('error', err => {
+        console.log()
+    })
+
+
+var j = schedule.scheduleJob(rule, async function(){ //execute query
+        const date = new Date()
+    console.log(date + ': ' + '3 minute timer')
+    const pool = new sql.ConnectionPool(config);
+    const poolConnect = pool.connect();
+    await poolConnect;
+    sendJackpotQuery(pool, date);
 });
 
 
-function sendJackpotQuery() {
-    sql.on('error', err => {
-        console.log('SQL error:' + err);
-    })
-    
-    sql.connect(config).then(pool => {
-        // Query
-        
-        return pool.request()
-            .query(jackpotQuery);
-    })
-    .then(result => {
-        console.log('response recieved')
-        if (result.recordset.length > 0) {
-            console.log('we got results!: ')
-            console.log(result.recordsets);
-            sendPlayCommand()
-        } else if (result.recordset.length == 0) {
-            console.log('there were no results')
-        }
-    })
-    .catch(err => {
-    console.log(err);
-    });
+async function sendJackpotQuery(pool, date) {
+    const transaction = new sql.Transaction(pool)
+
+        transaction.begin(err => {
+            if (err) {
+                console.log(date + ': ' + 'there was an error with transaction:')
+                console.log(err)
+            } else {
+                const request = new sql.Request(transaction)
+                request.query(jackpotQuery, (err, result) => {
+                    if (err) {
+                        console.log(date + ': ' + 'there was an error querying:')
+                        console.log(err)
+                    } else {
+                        if (result.recordset.length > 0) {
+                            console.log(date + ': ' + JSON.stringify(result.recordsets));
+                            sendPlayCommand()
+                            pool.close()
+                            return
+                        } else if (result.recordset.length == 0) {
+                            console.log(date + ': ' + 'there were no results')
+                            pool.close()
+                            return
+                        }
+                    }
+            
+                    transaction.commit(err => {
+                        if (err) {
+                        console.log('there was an error commiting:')
+                        console.log(err)
+                        }
+                        //console.log("Transaction committed.")
+                    })
+                })
+            }
+        })
 }
+
+
 
 
 function getRandomInt(max) {
@@ -77,15 +105,16 @@ let tracks = [
 
 
 function sendPlayCommand() {
+    let date = new Date()
     axios({
         method: 'get',
         url: 'http://10.160.27.80:9000/rest/control?cmd=' + tracks[getRandomInt(tracks.length)],
       })
       .then((res) => {
-          console.log(res.status)
           if (res.status === 200) {
               return true
           } else {
+              console.log(date + ': ' + 'player did not respond, is it unplugged?')
               return false
           }
       })
@@ -93,21 +122,22 @@ function sendPlayCommand() {
 }
 
     app.get('/eric', (req, res) => {
+        let date = new Date()
         let playCommand = sendPlayCommand()
-        console.log(playCommand)
         if (playCommand == true) {
-            res.send('sent test command');
+            res.send(date + ': ' + 'sent test command');
         } else {
-            res.send("there was a problem, the device didn't respond")
+            res.send(date + ': ' + "there was a problem, the device didn't respond")
         }
       
     })
   
     app.listen(port, (err) => {
+        let date = new Date()
         if (err) {
-            console.log('there was an error starting the server')
+            console.log(date + ': ' + 'there was an error starting the server')
             console.log(err)
             } else {
-                console.log('Server started! V2 At http://localhost:' + port);
+                console.log(date + ': ' + 'Server started! V2 At http://localhost:' + port);
             }
     });
