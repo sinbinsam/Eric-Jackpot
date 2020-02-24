@@ -16,8 +16,8 @@ Function newREST(msgPort As Object, userVariables As Object, bsp as Object)
 	s.bsp 			= 	bsp
 	s.ProcessEvent 		= 	REST_ProcessEvent
 
-	's.player = CreateObject("roAudioPlayer")
-	's.player.MapStereoOutput(0)
+	s.player = CreateObject("roAudioPlayer")
+	s.player.MapStereoOutput(0)
 
 	s.player = CreateObject("ROAUDIOPLAYERMX")
 	s.player.SetAudioOutput(0)
@@ -66,12 +66,9 @@ Function REST_ProcessEvent(event As Object) as boolean
 		'Protect against LFN type settings		
 		if type(event.GetUserData()) = "roString" then			
 			if event.GetUserData() = "restControl" then
-            fileName = event.GetRequestParam("fileName");
-            chickenDinner = event.GetRequestParam("chickenDinner");
-            gameName = event.GetRequestParam("gameName");
-				if fileName <> "" and chickenDinner <> "" and gameName <> "" then
-					m.zoneMsgSend(fileName, chickenDinner, gameName)
-					event.SetResponseBodyString("CMD_Received: "+fileName+", "+chickenDinner+", "+gameName)
+				if event.GetRequestParam("fileName") <> "" and event.GetRequestParam("chickenDinner") <> "" and event.GetRequestParam("gameName") <> "" then
+					m.zoneMsgSend(event.GetRequestParam("fileName"), event.GetRequestParam("chickenDinner"), event.GetRequestParam("gameName"))
+					event.SetResponseBodyString("Params_Received: "+event.GetRequestParam("fileName")+", "+event.GetRequestParam("chickenDinner")+", "+event.GetRequestParam("gameName"))
 					event.SendResponse(200)
 					retval = true
 				else
@@ -104,7 +101,7 @@ Function zoneMsgSend(fileName$ As String, chickenDinner$ As String, gameName$ As
 audio = {
     filename: "/jackpot_audio/"+fileName$+".wav",
     QueueNext: 1,
-}
+ }
 
 m.player.PlayFile(audio)
 
