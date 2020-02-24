@@ -16,8 +16,8 @@ Function newREST(msgPort As Object, userVariables As Object, bsp as Object)
 	s.bsp 			= 	bsp
 	s.ProcessEvent 		= 	REST_ProcessEvent
 
-	s.player = CreateObject("roAudioPlayer")
-	s.player.MapStereoOutput(0)
+	's.player = CreateObject("roAudioPlayer")
+	's.player.MapStereoOutput(0)
 
 	s.player = CreateObject("ROAUDIOPLAYERMX")
 	s.player.SetAudioOutput(0)
@@ -31,7 +31,7 @@ Function newREST(msgPort As Object, userVariables As Object, bsp as Object)
 	s.newREST		=	createobject("roHttpServer", {port : 9000})
 	s.newRest.SetPort(msgPort)
 	s.newREST.AddGetFromEvent({	
-		url_path 	: 	"/jackpot/play"
+		url_path 	: 	"/rest/control"
 		user_data	:	"restControl"	
 	})
 		
@@ -66,14 +66,14 @@ Function REST_ProcessEvent(event As Object) as boolean
 		'Protect against LFN type settings		
 		if type(event.GetUserData()) = "roString" then			
 			if event.GetUserData() = "restControl" then
-				if event.GetRequestParam("fileName") <> "" and event.GetRequestParam("chickenDinner") <> "" and event.GetRequestParam("gameName") <> "" then
-					m.zoneMsgSend(event.GetRequestParam("fileName"), event.GetRequestParam("chickenDinner"), event.GetRequestParam("gameName"))
-					event.SetResponseBodyString("Params_Received: "+event.GetRequestParam("fileName")+", "+event.GetRequestParam("chickenDinner")+", "+event.GetRequestParam("gameName"))
+				if event.GetRequestParam("cmd") <> "" then
+					m.zoneMsgSend(event.GetRequestParam("cmd"))
+					event.SetResponseBodyString("CMD_Received: "+event.GetRequestParam("cmd"))
 					event.SendResponse(200)
 					retval = true
 				else
 					? "There is no parameter"
-					event.SetResponseBodyString("Invalid parameters")
+					event.SetResponseBodyString("Invalid pararmeter. Try cmd=command")
 					event.SendResponse(200)
 					? "Don't pass this to another plugin"
 					retval = true
@@ -94,17 +94,60 @@ Function ParseRESTPluginMsg(origMsg as string, s as object) as boolean
 End Function
 
 REM Send a zone message to Presentation.
-Function zoneMsgSend(fileName$ As String, chickenDinner$ As String, gameName$ As String)
+Function zoneMsgSend(cmd$ As String)
 
 
+arr = [
+	{
+		filename: "/jackpot_audio/1000jackpotmomentsago.wav",
+		QueueNext: 1,
+		ident: "1000jackpotmomentsago"
+	},
+	{
+		filename: "/jackpot_audio/1000jackpotwaytogo.wav",
+		QueueNext: 1,
+		ident: "1000jackpotwaytogo"
+	},
+	{
+		filename: "/jackpot_audio/1000Trigger.wav",
+		QueueNext: 1,
+		ident: "1000Trigger"
+	},
+	{
+		filename: "/jackpot_audio/1000Trigger2.wav",
+		QueueNext: 1,
+		ident: "1000Trigger2"
+	},
+	{
+		filename: "/jackpot_audio/GenericTrigger.wav",
+		QueueNext: 1,
+		ident: "GenericTrigger"
+	},
+	{
+		filename: "/jackpot_audio/jackpotmaybenextgeneric.wav",
+		QueueNext: 1,
+		ident: "jackpotmaybenextgeneric"
+	},
+	{
+		filename: "/jackpot_audio/prettyawesomejackpotgeneric.wav",
+		QueueNext: 1,
+		ident: "prettyawesomejackpotgeneric"
+	},
+	{
+		filename: "/jackpot_audio/somebodywon1000jackpotgeneric.wav",
+		QueueNext: 1,
+		ident: "somebodywon1000jackpotgeneric"
+	},
+]
 
-audio = {
-    filename: "/jackpot_audio/"+fileName$+".wav",
-    QueueNext: 1,
- }
-
-m.player.PlayFile(audio)
-
+for each n in arr
+	if cmd$ = n.ident
+		'Playing = m.player.GetPlaybackStatus()
+		'	if Playing.Playing = false
+				m.player.PlayFile(n)
+		'	end if
+	end if
+ End For
 
 	'm.player.PlayFile("/music.wav")
 End Function

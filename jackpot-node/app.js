@@ -1,6 +1,5 @@
 const   sql         = require('mssql'),
         express     = require('express'),
-        schedule    = require('node-schedule'),
         CronJob     = require('cron').CronJob,
         axios       = require('axios'),
         path        = require('path'),
@@ -9,6 +8,7 @@ const   sql         = require('mssql'),
 
 
 const port = process.env.PORT || 8080
+const playerIp = '10.160.27.80'
 
 
 const jackpotQuery = "\
@@ -128,23 +128,13 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
   }
 
-let tracks = [
-'1000jackpotmomentsago', 
-'1000jackpotwaytogo', 
-'1000Trigger', 
-'1000Trigger2', 
-'GenericTrigger', 
-'jackpotmaybenextgeneric', 
-'prettyawesomejackpotgeneric', 
-'somebodywon1000jackpotgeneric'
-];
 
 
 function sendPlayCommand(track, chickenDinner, gameName) {
     let date = new Date()
     axios({
         method: 'get',
-        url: 'http://10.160.27.80:9000/jackpot/play?fileName=' + track + '&chickenDinner=' + chickenDinner + '&gameName' + gameName,
+        url: 'http://' + playerIp + ':9000/jackpot/play?fileName=' + track + '&chickenDinner=' + chickenDinner + '&gameName=' + gameName,
       })
       .then((res) => {
           if (res.status === 200) {
@@ -159,7 +149,9 @@ function sendPlayCommand(track, chickenDinner, gameName) {
 
     app.get('/eric', (req, res) => {
         let date = new Date()
-        let playCommand = sendPlayCommand()
+        let combinedArr = tracks2500.concat(tracks5000, tracks10000)
+        console.log(combinedArr[getRandomInt(combinedArr.length)])
+        let playCommand = sendPlayCommand(combinedArr[getRandomInt(combinedArr.length)], 1, 2)
         if (playCommand == true) {
             res.send(date + ': ' + 'sent test command');
         } else {
