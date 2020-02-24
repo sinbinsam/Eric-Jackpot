@@ -102,7 +102,7 @@ let tracks10000 = [
     '10000FingerLakesFortuneV1',
     '10000GenericV1',
     '10000MomentsAgoV1',
-    '10000TimeToCelebrateV1'
+    '10000TimetoCelebrateV1'
 ]
 
 
