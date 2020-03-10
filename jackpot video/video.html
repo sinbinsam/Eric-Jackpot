@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+
+
+
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+renderer.setClearColor(0xEEEEEE);
+
+
+var geometry = new THREE.BoxGeometry();
+var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var cube = new THREE.Mesh( geometry, material );
+//scene.add( cube );
+
+camera.position.z = 50;
+
+
+group = new THREE.Group();
+//group.position.y = 100;
+
+
+var loader = new THREE.FontLoader();
+
+loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+	var geometry = new THREE.TextGeometry( 'Hello three.js!', {
+		font: font,
+		size: 80,
+		height: 5,
+		curveSegments: 12,
+		bevelEnabled: true,
+		bevelThickness: 10,
+		bevelSize: 8,
+		bevelOffset: 0,
+		bevelSegments: 5
+	} );
+    geometry.computeBoundingBox();
+	geometry.computeVertexNormals();
+
+
+    textGeo = new THREE.BufferGeometry().fromGeometry( geometry );
+
+var material = new THREE.MeshPhongMaterial( { color: 0xff0000, specular: 0xffffff } );
+
+var mesh = new THREE.Mesh( textGeo, material ) ;
+
+scene.add(mesh)
+
+camera.position.set(300,300,700);
+camera.lookAt(geometry.position);
+} );
+
+
+console.log(scene)
+
+
+
+
+
+
+function animate() {
+	requestAnimationFrame( animate );
+	renderer.render( scene, camera );
+}
+animate();
+
+
+		</script>
+	</body>
+</html>
