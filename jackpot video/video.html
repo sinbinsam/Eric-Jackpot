@@ -38,19 +38,19 @@ camera.position.z = 50;
 group = new THREE.Group();
 //group.position.y = 100;
 
-
+var shading_type = THREE.SmoothShading;
 var loader = new THREE.FontLoader();
 
-loader.load( 'fonts/gentilis_bold.typeface.json', function ( font ) {
+loader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/gentilis_regular.typeface.json', function ( font ) {
 
 	var geometry = new THREE.TextGeometry( '1000', {
 		font: font,
 		size: 50,
-		height: 5,
+		height: 1,
 		curveSegments: 12,
-		bevelEnabled: false,
+		bevelEnabled: true,
 		bevelThickness: 1,
-		bevelSize: 8,
+		bevelSize: 1,
 		bevelOffset: 0,
 		bevelSegments: 5
 	} );
@@ -60,7 +60,11 @@ loader.load( 'fonts/gentilis_bold.typeface.json', function ( font ) {
 
     textGeo = new THREE.BufferGeometry().fromGeometry( geometry );
 
-var material = new THREE.MeshPhongMaterial( { color: 0xffffff, flatShading: true } );
+	var material = new THREE.MeshLambertMaterial({
+                color: 0xff0000,
+                shading: shading_type,
+                transparent: true
+            });
 
 var mesh = new THREE.Mesh( textGeo, material ) ;
 
