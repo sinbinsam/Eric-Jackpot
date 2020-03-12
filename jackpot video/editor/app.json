@@ -13,17 +13,17 @@
 			"generator": "Object3D.toJSON"
 		},
 		"object": {
-			"uuid": "0ED1AFFF-4821-40EA-95EA-557F652AB6A7",
+			"uuid": "7FE4180A-56C3-4C93-AA33-882C0787E03C",
 			"type": "PerspectiveCamera",
 			"name": "Camera",
 			"layers": 1,
-			"matrix": [0.817951,0,-0.575288,0,-0.351624,0.791465,-0.499943,0,0.455321,0.611214,0.64738,0,3.610579,4.846776,5.133559,1],
+			"matrix": [0.91392,0,-0.405894,0,-0.111232,0.961717,-0.250453,0,0.390355,0.274042,0.878934,0,1.365233,0.958439,3.073993,1],
 			"fov": 50,
 			"zoom": 1,
 			"near": 0.01,
 			"far": 1000,
 			"focus": 10,
-			"aspect": 1.791304,
+			"aspect": 1.790076,
 			"filmGauge": 35,
 			"filmOffset": 0
 		}
@@ -82,7 +82,7 @@
 					"near": 0.1,
 					"far": 2000,
 					"focus": 10,
-					"aspect": 1.791304,
+					"aspect": 1.790076,
 					"filmGauge": 35,
 					"filmOffset": 0
 				},
@@ -186,8 +186,8 @@
 			"fog": {
 				"type": "Fog",
 				"color": 14971097,
-				"near": 1.7,
-				"far": 29.14
+				"near": 1.2,
+				"far": 29
 			}
 		}
 	},
@@ -195,12 +195,16 @@
 		"77F59395-AE07-4530-9F3B-9F2A974A3456": [
 			{
 				"name": "text",
-				"source": "function update( event ) {\nvar loader = new THREE.FontLoader();\nvar shading_type = THREE.SmoothShading;\n\nloader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/gentilis_regular.typeface.json', function ( font ) {\n\n\tvar geometry = new THREE.TextGeometry( '1000', {\n\t\tfont: font,\n\t\tsize: 2,\n\t\theight: .1,\n\t\tdepth: 1,\n\t\tcurveSegments: 12,\n\t\tbevelEnabled: true,\n\t\tbevelThickness: .01,\n\t\tbevelSize: .1,\n\t\tbevelOffset: 0,\n\t\tbevelSegments: 5\n\t} );\n    geometry.computeBoundingBox();\n\tgeometry.computeVertexNormals();\n\n\n    textGeo = new THREE.BufferGeometry().fromGeometry( geometry );\n\t\n\tvar centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );\n\n            var material = new THREE.MeshLambertMaterial({\n                color: 0xF3F3F3,\n                shading: shading_type,\n                transparent: true\n            });\n\nvar mesh = new THREE.Mesh( textGeo, material ) ;\n\t\n\tmesh.position.x = centerOffset\n\nscene.add(mesh)\n} );\n}"
+				"source": "function update( event ) {\nvar loader = new THREE.FontLoader();\nvar shading_type = THREE.SmoothShading;\n\nloader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/gentilis_regular.typeface.json', function ( font ) {\n\n\tvar geometry = new THREE.TextGeometry( '1000', {\n\t\tfont: font,\n\t\tsize: 2,\n\t\theight: .1,\n\t\tdepth: 1,\n\t\tcurveSegments: 12,\n\t\tbevelEnabled: true,\n\t\tbevelThickness: .01,\n\t\tbevelSize: .1,\n\t\tbevelOffset: 0,\n\t\tbevelSegments: 5\n\t} );\n    geometry.computeBoundingBox();\n\tgeometry.computeVertexNormals();\n\n\n    textGeo = new THREE.BufferGeometry().fromGeometry( geometry );\n\t\n\tvar centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );\n\n            var material = new THREE.MeshLambertMaterial({\n                color: 0xF3F3F3,\n                shading: shading_type,\n                transparent: true\n            });\n\nvar mesh = new THREE.Mesh( textGeo, material ) ;\n\t\n\tmesh.position.x = centerOffset\n\nthis.add(mesh)\n} );\n}"
 			}],
 		"F46865B0-5241-4BE7-89E1-18B314F330DE": [
 			{
 				"name": "set camera",
 				"source": "function update( event ) {\nplayer.setCamera(this)\n}"
+			},
+			{
+				"name": "",
+				"source": "function update( event ) {\nthis.useQuaternion = true;\n\t\n\t\n}"
 			}]
 	}
 }
