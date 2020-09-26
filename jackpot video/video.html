@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+// --allow-file-access-from-files
+
+
+			var scene = new THREE.Scene();
+
+
+
+			var camera = new THREE.PerspectiveCamera( 120, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+renderer.setClearColor(0xEEEEEE);
+
+
+var geometry = new THREE.BoxGeometry();
+var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var cube = new THREE.Mesh( geometry, material );
+//scene.add( cube );
+
+camera.position.z = 50;
+
+
+group = new THREE.Group();
+//group.position.y = 100;
+
+var shading_type = THREE.SmoothShading;
+var loader = new THREE.FontLoader();
+
+loader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/gentilis_regular.typeface.json', function ( font ) {
+
+	var geometry = new THREE.TextGeometry( '1000', {
+		font: font,
+		size: 50,
+		height: 1,
+		curveSegments: 12,
+		bevelEnabled: true,
+		bevelThickness: 1,
+		bevelSize: 1,
+		bevelOffset: 0,
+		bevelSegments: 5
+	} );
+    geometry.computeBoundingBox();
+	geometry.computeVertexNormals();
+
+
+    textGeo = new THREE.BufferGeometry().fromGeometry( geometry );
+
+	var material = new THREE.MeshLambertMaterial({
+                color: 0xff0000,
+                shading: shading_type,
+                transparent: true
+            });
+
+var mesh = new THREE.Mesh( textGeo, material ) ;
+
+scene.add(mesh)
+
+camera.position.set(50, 0, 40);
+camera.rotateX(.5)
+//camera.lookAt(geometry.position);
+} );
+
+
+console.log(scene)
+
+
+var dirLight = new THREE.DirectionalLight( 0xffffff, .8 );
+				dirLight.position.set( 0, 0, 1 ).normalize();
+				scene.add( dirLight );
+
+
+
+function animate() {
+	requestAnimationFrame( animate );
+	renderer.render( scene, camera );
+}
+animate();
+
+
+		</script>
+	</body>
+</html>

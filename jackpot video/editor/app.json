@@ -1,0 +1,210 @@
+{
+	"metadata": {
+		"type": "App"
+	},
+	"project": {
+		"shadows": true,
+		"vr": false
+	},
+	"camera": {
+		"metadata": {
+			"version": 4.5,
+			"type": "Object",
+			"generator": "Object3D.toJSON"
+		},
+		"object": {
+			"uuid": "7FE4180A-56C3-4C93-AA33-882C0787E03C",
+			"type": "PerspectiveCamera",
+			"name": "Camera",
+			"layers": 1,
+			"matrix": [0.91392,0,-0.405894,0,-0.111232,0.961717,-0.250453,0,0.390355,0.274042,0.878934,0,1.365233,0.958439,3.073993,1],
+			"fov": 50,
+			"zoom": 1,
+			"near": 0.01,
+			"far": 1000,
+			"focus": 10,
+			"aspect": 1.790076,
+			"filmGauge": 35,
+			"filmOffset": 0
+		}
+	},
+	"scene": {
+		"metadata": {
+			"version": 4.5,
+			"type": "Object",
+			"generator": "Object3D.toJSON"
+		},
+		"geometries": [
+			{
+				"uuid": "8EF16D46-8919-41BC-BF41-A645C304D69B",
+				"type": "PlaneBufferGeometry",
+				"width": 1,
+				"height": 1,
+				"widthSegments": 1,
+				"heightSegments": 1
+			}],
+		"materials": [
+			{
+				"uuid": "7E8A0CB4-A048-4F9F-820A-B66A4F9A2DDD",
+				"type": "MeshPhongMaterial",
+				"color": 14687211,
+				"emissive": 0,
+				"specular": 1118481,
+				"shininess": 30,
+				"depthFunc": 3,
+				"depthTest": true,
+				"depthWrite": true,
+				"stencilWrite": false,
+				"stencilWriteMask": 255,
+				"stencilFunc": 519,
+				"stencilRef": 0,
+				"stencilFuncMask": 255,
+				"stencilFail": 7680,
+				"stencilZFail": 7680,
+				"stencilZPass": 7680
+			}],
+		"object": {
+			"uuid": "D08F5A4E-9B0C-41A9-B3B9-4B5E140863FD",
+			"type": "Scene",
+			"name": "Scene",
+			"layers": 1,
+			"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],
+			"children": [
+				{
+					"uuid": "F46865B0-5241-4BE7-89E1-18B314F330DE",
+					"type": "PerspectiveCamera",
+					"name": "PerspectiveCamera",
+					"visible": false,
+					"layers": 1,
+					"matrix": [1,0,0,0,0,0.917755,0.397148,0,0,-0.397148,0.917755,0,0,0,1.588389,1],
+					"fov": 94.12,
+					"zoom": 1,
+					"near": 0.1,
+					"far": 2000,
+					"focus": 10,
+					"aspect": 1.790076,
+					"filmGauge": 35,
+					"filmOffset": 0
+				},
+				{
+					"uuid": "77F59395-AE07-4530-9F3B-9F2A974A3456",
+					"type": "Group",
+					"name": "text holder",
+					"layers": 1,
+					"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
+				},
+				{
+					"uuid": "A8FB3325-3E48-4051-93A2-3E5E7D893BB0",
+					"type": "Mesh",
+					"name": "Plane",
+					"layers": 1,
+					"matrix": [100,0,0,0,0,0,-100,0,0,100,0,0,0,-0.52,2.554638,1],
+					"geometry": "8EF16D46-8919-41BC-BF41-A645C304D69B",
+					"material": "7E8A0CB4-A048-4F9F-820A-B66A4F9A2DDD"
+				},
+				{
+					"uuid": "76A0D2BE-EC2C-4756-A0E2-509814615644",
+					"type": "DirectionalLight",
+					"name": "DirectionalLight",
+					"castShadow": true,
+					"layers": 1,
+					"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,-10.854144,10,13.777146,1],
+					"color": 16777215,
+					"intensity": 0.38,
+					"shadow": {
+						"camera": {
+							"uuid": "6C8E257E-754B-4D0E-85A4-D7523479B0C6",
+							"type": "OrthographicCamera",
+							"layers": 1,
+							"zoom": 1,
+							"left": -5,
+							"right": 5,
+							"top": 5,
+							"bottom": -5,
+							"near": 0.5,
+							"far": 500
+						}
+					}
+				},
+				{
+					"uuid": "85868C4F-67DA-4C93-8181-7F3CA3CB5B7D",
+					"type": "SpotLight",
+					"name": "Left Light",
+					"layers": 1,
+					"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,-5.427103,0.28233,7.5,1],
+					"color": 16777215,
+					"intensity": 1,
+					"distance": 0,
+					"angle": 0.674,
+					"decay": 1,
+					"penumbra": 1,
+					"shadow": {
+						"camera": {
+							"uuid": "8D590F6E-F615-49C2-9501-7246BC57C65A",
+							"type": "PerspectiveCamera",
+							"layers": 1,
+							"fov": 50,
+							"zoom": 1,
+							"near": 0.5,
+							"far": 500,
+							"focus": 10,
+							"aspect": 1,
+							"filmGauge": 35,
+							"filmOffset": 0
+						}
+					}
+				},
+				{
+					"uuid": "C1766282-0122-41DB-9358-8573A15D5979",
+					"type": "SpotLight",
+					"name": "Right Light",
+					"layers": 1,
+					"matrix": [1,0,0,0,0,1,0,0,0,0,1,0,9.19862,0.150089,5.319948,1],
+					"color": 16777215,
+					"intensity": 1,
+					"distance": 0,
+					"angle": 0.554,
+					"decay": 1,
+					"penumbra": 1,
+					"shadow": {
+						"camera": {
+							"uuid": "124733D8-3220-4BFD-BB79-3B9B56C3A1CD",
+							"type": "PerspectiveCamera",
+							"layers": 1,
+							"fov": 50,
+							"zoom": 1,
+							"near": 0.5,
+							"far": 500,
+							"focus": 10,
+							"aspect": 1,
+							"filmGauge": 35,
+							"filmOffset": 0
+						}
+					}
+				}],
+			"background": 10395294,
+			"fog": {
+				"type": "Fog",
+				"color": 14971097,
+				"near": 1.2,
+				"far": 29
+			}
+		}
+	},
+	"scripts": {
+		"77F59395-AE07-4530-9F3B-9F2A974A3456": [
+			{
+				"name": "text",
+				"source": "function update( event ) {\nvar loader = new THREE.FontLoader();\nvar shading_type = THREE.SmoothShading;\n\nloader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/fonts/gentilis_regular.typeface.json', function ( font ) {\n\n\tvar geometry = new THREE.TextGeometry( '1000', {\n\t\tfont: font,\n\t\tsize: 2,\n\t\theight: .1,\n\t\tdepth: 1,\n\t\tcurveSegments: 12,\n\t\tbevelEnabled: true,\n\t\tbevelThickness: .01,\n\t\tbevelSize: .1,\n\t\tbevelOffset: 0,\n\t\tbevelSegments: 5\n\t} );\n    geometry.computeBoundingBox();\n\tgeometry.computeVertexNormals();\n\n\n    textGeo = new THREE.BufferGeometry().fromGeometry( geometry );\n\t\n\tvar centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );\n\n            var material = new THREE.MeshLambertMaterial({\n                color: 0xF3F3F3,\n                shading: shading_type,\n                transparent: true\n            });\n\nvar mesh = new THREE.Mesh( textGeo, material ) ;\n\t\n\tmesh.position.x = centerOffset\n\nthis.add(mesh)\n} );\n}"
+			}],
+		"F46865B0-5241-4BE7-89E1-18B314F330DE": [
+			{
+				"name": "set camera",
+				"source": "function update( event ) {\nplayer.setCamera(this)\n}"
+			},
+			{
+				"name": "",
+				"source": "function update( event ) {\nthis.useQuaternion = true;\n\t\n\t\n}"
+			}]
+	}
+}
