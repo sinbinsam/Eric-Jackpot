@@ -7,7 +7,7 @@ const   sql         = require('mssql'),
         app         = express();
 
 
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 443
 const playerIp = '10.160.27.80'
 
 
@@ -25,7 +25,6 @@ CONVERT(money, (PenniesWon / 100.00))AS 'WinInDollars',gamename\
 //schedule query
 
 const pool = new sql.ConnectionPool(config);
-   
 
 const job = new CronJob('0/3 * * * *', async function() {
     const d = new Date();
@@ -38,17 +37,19 @@ job.start()
 
 
 async function sendJackpotQuery() {
-    const poolConnect = pool.connect(); 
+    const poolConnect = pool.connect();
     await poolConnect;
     const transaction = new sql.Transaction(pool)
         transaction.begin(err => {
             if (err) {
+                date = new Date()
                 console.log(date + ': ' + 'there was an error with transaction:')
                 console.log(err)
             } else {
                 const request = new sql.Request(transaction)
                 request.query(jackpotQuery, (err, result) => {
                     if (err) {
+                        let date = new Date();
                         console.log(date + ': ' + 'there was an error querying:')
                         console.log(err)
                     } else {
@@ -78,12 +79,12 @@ async function sendJackpotQuery() {
 }
 
 let tracks1000 = [
-    '1000HappenedAgainV1',
-    '1000JackpotMomentsAgo',
-    '1000JackpotWaytoGo',
-    '1000MaybeYouV1',
-    '1000SomebodyWon'
-]
+        '1000HappenedAgainV1',
+        '1000JackpotMomentsAgo',
+        '1000JackpotWaytoGo',
+        '1000MaybeYouV1',
+        '1000SomebodyWon'
+    ]
 
 let tracks2500 = [
     '2500AllYourFriendsV1',
@@ -115,20 +116,21 @@ let tracks10000 = [
 
 
 function jackpotConditional(num, gameName) {
-    if (!num || num < 1000) {
+    let date = new Date()
+    if (!num || num < 1500) {
         console.log('no number or less than 1000')
     } else {
-        if (num >= 1000 && num < 2500) {
-            console.log('playing 1000 - 2500')
-            //sendPlayCommand(tracks1000[getRandomInt(tracks1000.length)], num, gameName)
+        if (num >= 1500 && num < 2500) {
+            console.log(date + ': playing 1500 - 2500')
+            sendPlayCommand(tracks1000[getRandomInt(tracks1000.length)], num, gameName)
         } else if (num >= 2500 && num < 5000) { //if greater than or equal to 2,500 and less than 5,000
-            console.log('playing 2500 - 5000')
+            console.log(date + ': playing 2500 - 5000')
             sendPlayCommand(tracks2500[getRandomInt(tracks2500.length)], num, gameName)
         } else if (num >= 5000 && num < 10000) { //if greater or equal to 5,000 and less than 10,000
             sendPlayCommand(tracks5000[getRandomInt(tracks5000.length)], num, gameName)
-            console.log('playing 5000 - 10000')
+            console.log(date + ': playing 5000 - 10000')
         } else if (num >= 10000) { //if greater than or equal to 10,000
-            console.log('playing 10000')
+            console.log(date + ': playing 10000')
             sendPlayCommand(tracks10000[getRandomInt(tracks10000.length)], num, gameName)
         }
     }

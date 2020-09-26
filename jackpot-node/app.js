@@ -1,28 +1,14 @@
 const   express     = require('express'),
-        loki        = require('lokijs'),
-        moment      = require('moment'),
         CronJob     = require('cron').CronJob,
         axios       = require('axios'),
-        bodyParser  = require('body-parser'),
-        //{ poolPromise } = require('./db'),
-        //{ sql } = require('./db'),
+        { poolPromise } = require('./db'),
+        { sql } = require('./db'),
         app         = express();
 
 
-const port = process.env.PORT || 8080
+const port = process.env.PORT || 9090
 const playerIp = '10.160.27.80'
 
-
-const oldjackpotQuery = "\
-SELECT top 4\
-CONVERT(money, (PenniesWon / 100.00))AS 'WinInDollars',gamename\
-    FROM floorz.play  with (nolock)\
-        where PlayerID is not null\
-            and isJackpotwin = 1\
-            and pennieswon  >=100000\
-            and InsertedDatetime > DATEADD(minute, -3, getdate())\
-            ;\
-"
 
 const jackpotQuery = "\
 SELECT top 4\
@@ -46,7 +32,7 @@ const job = new CronJob('0/3 * * * *', async function() {
     sendJackpotQuery();
 })
 
-//job.start()
+job.start()
 
 
 
@@ -120,16 +106,16 @@ function jackpotConditional(num, gameName) {
     } else {
         if (num >= 1500 && num < 2500) {
             console.log(date + ': playing 1500 - 2500')
-            //sendPlayCommand(tracks1000[getRandomInt(tracks1000.length)], num, gameName)
+            sendPlayCommand(tracks1000[getRandomInt(tracks1000.length)], num, gameName)
         } else if (num >= 2500 && num < 5000) { //if greater than or equal to 2,500 and less than 5,000
             console.log(date + ': playing 2500 - 5000')
-            //sendPlayCommand(tracks2500[getRandomInt(tracks2500.length)], num, gameName)
+            sendPlayCommand(tracks2500[getRandomInt(tracks2500.length)], num, gameName)
         } else if (num >= 5000 && num < 10000) { //if greater or equal to 5,000 and less than 10,000
-            //sendPlayCommand(tracks5000[getRandomInt(tracks5000.length)], num, gameName)
+            sendPlayCommand(tracks5000[getRandomInt(tracks5000.length)], num, gameName)
             console.log(date + ': playing 5000 - 10000')
         } else if (num >= 10000) { //if greater than or equal to 10,000
             console.log(date + ': playing 10000')
-            //sendPlayCommand(tracks10000[getRandomInt(tracks10000.length)], num, gameName)
+            sendPlayCommand(tracks10000[getRandomInt(tracks10000.length)], num, gameName)
         }
     }
 } //tracks[getRandomInt(tracks.length)]
@@ -159,11 +145,16 @@ function sendPlayCommand(track, chickenDinner, gameName) {
 }
 
     app.get('/eric', (req, res) => {
-        loadDb(moment().format('M-YY'), function(col, db) {
-            console.log(col.data)
-            res.render('log', {data: col.data});
-        });
-        
+        let date = new Date()
+        let combinedArr = tracks2500.concat(tracks1000, tracks5000, tracks10000)
+        console.log(combinedArr[getRandomInt(combinedArr.length)])
+        /*let playCommand = sendPlayCommand(combinedArr[getRandomInt(combinedArr.length)], 1, 2)
+        if (playCommand == true) {
+            res.send(date + ': ' + 'sent test command');
+        } else {
+            res.send(date + ': ' + "there was a problem, the device didn't respond")
+        }*/
+      
     })
   
     app.listen(port, (err) => {
