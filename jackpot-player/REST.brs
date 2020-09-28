@@ -31,7 +31,7 @@ Function newREST(msgPort As Object, userVariables As Object, bsp as Object)
 	s.newREST		=	createobject("roHttpServer", {port : 9000})
 	s.newRest.SetPort(msgPort)
 	s.newREST.AddGetFromEvent({	
-		url_path 	: 	"/jackpot/play"
+		url_path 	: 	"/audio/play"
 		user_data	:	"restControl"	
 	})
 		
@@ -66,9 +66,9 @@ Function REST_ProcessEvent(event As Object) as boolean
 		'Protect against LFN type settings		
 		if type(event.GetUserData()) = "roString" then			
 			if event.GetUserData() = "restControl" then
-				if event.GetRequestParam("fileName") <> "" and event.GetRequestParam("chickenDinner") <> "" and event.GetRequestParam("gameName") <> "" then
-					m.zoneMsgSend(event.GetRequestParam("fileName"), event.GetRequestParam("chickenDinner"), event.GetRequestParam("gameName"))
-					event.SetResponseBodyString("Params_Received: "+event.GetRequestParam("fileName")+", "+event.GetRequestParam("chickenDinner")+", "+event.GetRequestParam("gameName"))
+				if event.GetRequestParam("fileName") <> "" then
+					m.zoneMsgSend(event.GetRequestParam("fileName"))
+					event.SetResponseBodyString("fileName_Received: "+event.GetRequestParam("fileName"))
 					event.SendResponse(200)
 					retval = true
 				else
@@ -94,7 +94,7 @@ Function ParseRESTPluginMsg(origMsg as string, s as object) as boolean
 End Function
 
 REM Send a zone message to Presentation.
-Function zoneMsgSend(fileName$ As String, chickenDinner$ As String, gameName$ As String)
+Function zoneMsgSend(fileName$ As String)
 
 
 

@@ -1,35 +1,29 @@
-const   express     = require('express'),
-        CronJob     = require('cron').CronJob,
-        axios       = require('axios'),
-        { poolPromise } = require('./db'),
-        { sql } = require('./db'),
+const   express         = require('express'),
+        CronJob         = require('cron').CronJob,
+        axios           = require('axios'),
+        //{ poolPromise } = require('./db'),
+        //{ sql }         = require('./db'),
+        jackpotQuery    = require('./jackpotQuery'),
         app         = express();
 
 
-const port = process.env.PORT || 9090
-const playerIp = '10.160.27.80'
+const   port = process.env.PORT || 9090,
+        q = [],
+        playerIsBusy = false,
+        playerIp = '10.160.27.80';
 
 
-const jackpotQuery = "\
-SELECT top 4\
-CONVERT(money, (PenniesWon / 100.00))AS 'WinInDollars',gamename\
-    FROM floorz.play  with (nolock)\
-        where InsertedDatetime > DATEADD(minute, -3, getdate())\
-            and PlayerID is not null\
-            and isJackpotwin = 1\
-            and pennieswon  >=100000\
-            ;\
-"
 
-//schedule query
+        function timeOut(ms) { //timeout function
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
 
-//const pool = new sql.ConnectionPool(config);
    
 
 const job = new CronJob('0/3 * * * *', async function() {
     const d = new Date();
     console.log(d + '3 minute timer: ')
-    sendJackpotQuery();
+    //sendJackpotQuery();
 })
 
 job.start()
@@ -63,59 +57,131 @@ async function sendJackpotQuery() {
 }
 
 let tracks1000 = [
-    '1000HappenedAgainV1',
-    '1000JackpotMomentsAgo',
-    '1000JackpotWaytoGo',
-    '1000MaybeYouV1',
-    '1000SomebodyWon'
+    {
+        fileName: '1000HappenedAgainV1',
+        timeLength: 12000
+    },
+    {
+        fileName: '1000JackpotMomentsAgo',
+        timeLength: 7000
+    },
+    {
+        fileName: '1000JackpotWaytoGo',
+        timeLength: 9000
+    },
+    {
+        fileName: '1000MaybeYouV1',
+        timeLength: 13000
+    },
+    {
+        fileName: '1000SomebodyWon',
+        timeLength: 10000
+    }
 ]
 
 let tracks2500 = [
-    '2500AllYourFriendsV1',
-    '2500FeelAwesomeV1',
-    '2500GenericV1',
-    '2500ItHappenedAgainV1',
-    '2500MomentsAgoV1',
-    '2500WhosNextV1'
+    {
+        fileName: '2500AllYourFriendsV1',
+        timeLength: 10000
+    },
+    {
+        fileName: '2500FeelAwesomeV1',
+        timeLength: 9000
+    },
+    {
+        fileName: '2500GenericV1',
+        timeLength: 8000
+    },
+    {
+        fileName: '2500ItHappenedAgainV1',
+        timeLength: 9000
+    },
+    {
+        fileName: '2500MomentsAgoV1',
+        timeLength: 7000
+    },
+    {
+        fileName: '2500WhosNextV1',
+        timeLength: 11000
+    }
 ]
 
 let tracks5000 = [
-    '5000AnotherV1',
-    '5000CongratulationsV1',
-    '5000MaybeYouV1',
-    '5000MomentsAgoV1',
-    '5000ThatsHowV1',
-    '5000WayToGoV1',
-    '5000WhosNextV1'
+    {
+        fileName: '5000AnotherV1',
+        timeLength: 6000
+    },
+    {
+        fileName: '5000CongratulationsV1',
+        timeLength: 12000
+    },
+    {
+        fileName: '5000MaybeYouV1',
+        timeLength: 10000
+    },
+    {
+        fileName: '5000MomentsAgoV1',
+        timeLength: 9000
+    },
+    {
+        fileName: '5000ThatsHowV1',
+        timeLength: 13000
+    },
+    {
+        fileName: '5000WayToGoV1',
+        timeLength: 5000
+    },
+    {
+        fileName: '5000WhosNextV1',
+        timeLength: 9000
+    }
 ]
 
 let tracks10000 = [
-    '10000BigCongratsV1',
-    '10000CongratulationsV1',
-    '10000FingerLakesFortuneV1',
-    '10000GenericV1',
-    '10000MomentsAgoV1',
-    '10000TimetoCelebrateV1'
+    {
+        fileName: '10000BigCongratsV1',
+        timeLength: 10000
+    },
+    {
+        fileName: '10000CongratulationsV1',
+        timeLength: 10000
+    },
+    {
+        fileName: '10000FingerLakesFortuneV1',
+        timeLength: 10000
+    },
+    {
+        fileName: '10000GenericV1',
+        timeLength: 12000
+    },
+    {
+        fileName: '10000MomentsAgoV1',
+        timeLength: 9000
+    },
+    {
+        fileName: '10000TimetoCelebrateV1',
+        timeLength: 10000
+    }
 ]
 
 
-function jackpotConditional(num, gameName) {
+function jackpotConditional(num, gameName) { //num is int of how much won, gameName is string of the game name
     let date = new Date()
     if (!num || num < 1500) {
         console.log(date + ': no number or less than 1500')
     } else {
         if (num >= 1500 && num < 2500) {
-            console.log(date + ': playing 1500 - 2500')
-            sendPlayCommand(tracks1000[getRandomInt(tracks1000.length)], num, gameName)
+            console.log(date + ': playing 1500 - 2500');
+            q.push(tracks1000[getRandomInt(tracks1000.length)])
         } else if (num >= 2500 && num < 5000) { //if greater than or equal to 2,500 and less than 5,000
-            console.log(date + ': playing 2500 - 5000')
-            sendPlayCommand(tracks2500[getRandomInt(tracks2500.length)], num, gameName)
+            console.log(date + ': playing 2500 - 5000');
+            q.push(tracks2500[getRandomInt(tracks2500.length)])
         } else if (num >= 5000 && num < 10000) { //if greater or equal to 5,000 and less than 10,000
-            sendPlayCommand(tracks5000[getRandomInt(tracks5000.length)], num, gameName)
-            console.log(date + ': playing 5000 - 10000')
+            console.log(date + ': playing 5000 - 10000');
+            q.push(tracks5000[getRandomInt(tracks5000.length)])
         } else if (num >= 10000) { //if greater than or equal to 10,000
-            console.log(date + ': playing 10000')
-            sendPlayCommand(tracks10000[getRandomInt(tracks10000.length)], num, gameName)
+            console.log(date + ': playing 10000');
+            q.push(tracks10000[getRandomInt(tracks10000.length)])
         }
     }
 } //tracks[getRandomInt(tracks.length)]
@@ -127,35 +193,58 @@ function getRandomInt(max) {
 
 
 
-function sendPlayCommand(track, chickenDinner, gameName) {
-    let date = new Date()
-    axios({
-        method: 'get',
-        url: 'http://' + playerIp + ':9000/jackpot/play?fileName=' + track + '&chickenDinner=' + chickenDinner + '&gameName=' + gameName,
-      })
-      .then((res) => {
-          if (res.status === 200) {
-              return true
-          } else {
-              console.log(date + ': ' + 'player did not respond, is it unplugged?')
-              return false
-          }
-      })
-      return true
+function sendPlayCommand(track) { //string of filename, dont include .wav
+    return new Promise((resolve, reject) => {
+        let date = new Date()
+        console.log(date + ': played track ' + track)
+        resolve()
+            /*axios({
+                method: 'get',
+                url: 'http://' + playerIp + ':9000/audio/play?fileName=' + track
+            })
+            .then((res) => {
+                if (res.status === 200) {
+                    resolve();
+                } else {
+                    console.log(date + ': ' + 'player did not respond, is it unplugged?')
+                    reject();
+                }
+            })*/
+    })
+
+}
+
+function qManager (fileName, timeLength) {
+        if (!playerIsBusy) {
+            playerIsBusy = true;
+            sendPlayCommand(fileName)
+                .then(timeOut(timeLength))
+                .then(() => {
+                    q.slice(1);
+                    if (q.length > 0) {
+                        playerIsBusy = false;
+                        qManager(q[0].fileName, q[0].timeLength);
+                    } else {
+                        playerIsBusy = false;
+                    }
+                })
+                .catch(console.log('there was a problem playing audio'))
+        }
 }
 
     app.get('/eric', (req, res) => {
-        let date = new Date()
-        let combinedArr = tracks2500.concat(tracks1000, tracks5000, tracks10000)
-        console.log(combinedArr[getRandomInt(combinedArr.length)])
-        /*let playCommand = sendPlayCommand(combinedArr[getRandomInt(combinedArr.length)], 1, 2)
-        if (playCommand == true) {
-            res.send(date + ': ' + 'sent test command');
-        } else {
-            res.send(date + ': ' + "there was a problem, the device didn't respond")
-        }*/
+        res.sendStatus(200)
+        q.push(tracks10000[0]);
+        timeOut(5000);
+        q.push(tracks10000[1])
+        console.log(q)
       
     })
+
+    while (q.length > 0) {
+        qManager(q[0].fileName, q[0].timeLength)
+        timeOut(500)
+    }
   
     app.listen(port, (err) => {
         let date = new Date()
