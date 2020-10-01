@@ -14,7 +14,7 @@ const   port = process.env.PORT || 9090,
 
 
 
-        function timeOut(ms) { //timeout function
+        async function timeOut(ms) { //timeout function
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
@@ -193,7 +193,7 @@ function getRandomInt(max) {
 
 
 
-function sendPlayCommand(track) { //string of filename, dont include .wav
+async function sendPlayCommand(track) { //string of filename, dont include .wav
     return new Promise((resolve, reject) => {
         let date = new Date()
         console.log(date + ': played track ' + track)
@@ -214,11 +214,14 @@ function sendPlayCommand(track) { //string of filename, dont include .wav
 
 }
 
-function qManager (fileName, timeLength) {
+async function qManager (fileName, timeLength) {
         if (!playerIsBusy) {
+            console.log('called qmanager')
             playerIsBusy = true;
             sendPlayCommand(fileName)
-                .then(timeOut(timeLength))
+                .then(async () => {
+                    await timeOut(timeLength)
+                })
                 .then(() => {
                     q.slice(1);
                     if (q.length > 0) {
@@ -232,12 +235,18 @@ function qManager (fileName, timeLength) {
         }
 }
 
-    app.get('/eric', (req, res) => {
-        res.sendStatus(200)
+
+
+    app.get('/eric', async (req, res) => {
         q.push(tracks10000[0]);
-        timeOut(5000);
+        console.log(q)
+        await timeOut(5000)
         q.push(tracks10000[1])
         console.log(q)
+        res.sendStatus(200)
+
+        
+        
       
     })
 
