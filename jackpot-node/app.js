@@ -3,14 +3,16 @@ const   express         = require('express'),
         axios           = require('axios'),
         //{ poolPromise } = require('./db'),
         //{ sql }         = require('./db'),
-        jackpotQuery    = require('./jackpotQuery'),
-        app         = express();
+        { jackpotQuery }    = require('./jackpotQuery'),
+        { promos }          = require('./promos'),
+        port            = process.env.PORT || 9090,
+        playerIp        = '10.160.27.80',
+        app             = express();
 
 
-const   port = process.env.PORT || 9090,
-        q = [],
-        playerIsBusy = false,
-        playerIp = '10.160.27.80';
+var     q = [],
+        promoObj = {},
+        playerIsBusy = false;
 
 
 
@@ -28,6 +30,19 @@ const job = new CronJob('0/3 * * * *', async function() {
 
 job.start()
 
+
+
+function startPromoJobs() {
+    promos.forEach(obj => {
+        promoObj[obj.fileName] = new CronJob(obj.cron,() => {
+            console.log('scheduled play: ' + obj.fileName)
+            addToQ(obj);
+        })
+        promoObj[obj.fileName].start()
+    })
+}
+
+startPromoJobs();
 
 
 async function sendJackpotQuery() {
@@ -214,34 +229,36 @@ async function sendPlayCommand(track) { //string of filename, dont include .wav
 
 }
 
-async function qManager (fileName, timeLength) {
+async function qManager () {
         if (!playerIsBusy) {
-            console.log('called qmanager')
+            console.log('called qmanager: ' + q[0].fileName)
             playerIsBusy = true;
-            sendPlayCommand(fileName)
-                .then(async () => {
-                    await timeOut(timeLength)
-                })
-                .then(() => {
-                    q.slice(1);
+            sendPlayCommand(q[0].fileName)
+                //.catch(console.log('there was a problem playing audio'))
+                    await timeOut(q[0].timeLength)
+                    q = q.slice(1);
                     if (q.length > 0) {
                         playerIsBusy = false;
                         qManager(q[0].fileName, q[0].timeLength);
                     } else {
+                        console.log('stopped watcher')
                         playerIsBusy = false;
                     }
-                })
-                .catch(console.log('there was a problem playing audio'))
+
+                
         }
 }
 
-
+async function addToQ (obj) {
+    q.push(obj);
+    qManager();
+}
 
     app.get('/eric', async (req, res) => {
-        q.push(tracks10000[0]);
+        addToQ(tracks10000[0]);
         console.log(q)
-        await timeOut(5000)
-        q.push(tracks10000[1])
+        await timeOut(2000)
+        addToQ(tracks10000[1])
         console.log(q)
         res.sendStatus(200)
 
