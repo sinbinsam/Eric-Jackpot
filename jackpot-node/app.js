@@ -6,8 +6,15 @@ const   express         = require('express'),
         { jackpotQuery }    = require('./jackpotQuery'),
         { promos }          = require('./promos'),
         port            = process.env.PORT || 9090,
+        mongoInterface  = require('./mongoInterface'),
         playerIp        = '10.160.27.80',
         app             = express();
+
+        app.use(function(req, res, next) {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            next();
+        });
 
 
 var     q = [],
@@ -35,7 +42,6 @@ job.start()
 function startPromoJobs() {
     promos.forEach(obj => {
         promoObj[obj.fileName] = new CronJob(obj.cron,() => {
-            console.log('scheduled play: ' + obj.fileName)
             addToQ(obj);
         })
         promoObj[obj.fileName].start()
@@ -212,10 +218,10 @@ async function sendPlayCommand(track) { //string of filename, dont include .wav
     return new Promise((resolve, reject) => {
         let date = new Date()
         console.log(date + ': played track ' + track)
-        resolve()
+        resolve() //remove for production
             /*axios({
                 method: 'get',
-                url: 'http://' + playerIp + ':9000/audio/play?fileName=' + track
+                url: 'http://' + playerIp + ':9000/rest/control?fileName=' + track
             })
             .then((res) => {
                 if (res.status === 200) {
@@ -255,22 +261,34 @@ async function addToQ (obj) {
 }
 
     app.get('/eric', async (req, res) => {
-        addToQ(tracks10000[0]);
-        console.log(q)
-        await timeOut(2000)
-        addToQ(tracks10000[1])
-        console.log(q)
-        res.sendStatus(200)
-
-        
-        
-      
+    mongoInterface.getPromos()
+        .then(resp => {
+            console.log(resp)
+            res.json(resp)
+        })
     })
 
-    while (q.length > 0) {
+    app.get('/api/get', (req, res) => {
+        mongoInterface.getPromos()
+        .then(resp => {
+            console.log(resp)
+            res.json(resp)
+        })
+    })
+
+    app.get('/api/set', (req, res) => {
+    mongoInterface.setPromos(req.body.params)
+        .then(res.sendStatus(200))
+        .catch(res.sendStatus(500));
+    })
+
+
+
+
+    /*while (q.length > 0) {
         qManager(q[0].fileName, q[0].timeLength)
         timeOut(500)
-    }
+    }*/
   
     app.listen(port, (err) => {
         let date = new Date()
