@@ -99,11 +99,13 @@ Function zoneMsgSend(fileName$ As String)
 
 
 audio = {
-    filename: "/jackpot_audio/"+fileName$+".wav",
-    QueueNext: 1,
- }
+   filename: "/jackpot_audio/"+fileName$+".mp3",
+   QueueNext: 1,
+}
+
 
 m.player.PlayFile(audio)
+
 
 
 	'm.player.PlayFile("/music.wav")

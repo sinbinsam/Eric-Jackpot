@@ -1,6 +1,11 @@
 <template>
   <div class="container">
     <h1>YO</h1>
+
+    <b-button
+    v-bind:val="this.jackpot"
+    ></b-button>
+
     <div
     v-if="jobs"
     >
@@ -25,22 +30,32 @@ export default {
   },
   methods: {
     getJobs() {
-      axios.get('http://localhost:9090/api/get')
+      axios.get(this.apiRoute + '/api/get')
         .then(res => {
           this.jobs = res.data
         })
     },
     setJobs() {
-      axios.get('http://localhost:9090/api/set', {jobs})
+      axios.get(this.apiRoute + '/api/set', {jobs})
+    },
+    getConfigs() {
+      axios.get(this.apiRoute + '/config/get')
+        .then(res => {
+          this.jackpot = res.data.jackpot
+        })
+        .catch(console.log('error contacting API server'))
     }
   },
   data() {
     return {
-      jobs: null
+      apiRoute: 'http://localhost:9090',
+      jobs: null,
+      jackpot: null
     }
   },
   created() {
     this.getJobs()
+    this.getConfigs()
   }
 }
 </script>

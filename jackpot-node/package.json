@@ -10,9 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",
+    "configstore": "^5.0.1",
     "cron": "^1.8.2",
     "express": "^4.17.1",
     "mongodb": "^3.6.2",
-    "mssql": "^6.1.0"
+    "mssql": "^6.1.0",
+    "nanoid": "^3.1.12"
   }
 }

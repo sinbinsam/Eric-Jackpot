@@ -1,12 +1,16 @@
+const { promises } = require('dns');
+
 const   express         = require('express'),
         CronJob         = require('cron').CronJob,
         axios           = require('axios'),
+        fs              = require('fs'),
         //{ poolPromise } = require('./db'),
         //{ sql }         = require('./db'),
         { jackpotQuery }    = require('./jackpotQuery'),
         { promos }          = require('./promos'),
         port            = process.env.PORT || 9090,
-        mongoInterface  = require('./mongoInterface'),
+        config          = require('./configInterface.js'),
+        { nanoid }      = require('nanoid'),
         playerIp        = '10.160.27.80',
         app             = express();
 
@@ -18,7 +22,7 @@ const   express         = require('express'),
 
 
 var     q = [],
-        promoObj = {},
+        promoObj = [],
         playerIsBusy = false;
 
 
@@ -29,13 +33,15 @@ var     q = [],
 
    
 
-const job = new CronJob('0/3 * * * *', async function() {
+const jackpot = new CronJob('0/3 * * * *', async function() {
     const d = new Date();
     console.log(d + '3 minute timer: ')
-    //sendJackpotQuery();
+    if (config.getConfig('jackpot')) {
+        //sendJackpotQuery();
+    }
 })
 
-job.start()
+jackpot.start()
 
 
 
@@ -49,6 +55,16 @@ function startPromoJobs() {
 }
 
 startPromoJobs();
+
+function stopPromoJobs() {
+    return new Promise((resolve, reject) => {
+        promos.forEach(obj => {
+            promoObj[obj.fileName].stop()
+        })
+        resolve();
+    })
+
+}
 
 
 async function sendJackpotQuery() {
@@ -261,34 +277,59 @@ async function addToQ (obj) {
 }
 
     app.get('/eric', async (req, res) => {
-    mongoInterface.getPromos()
-        .then(resp => {
-            console.log(resp)
-            res.json(resp)
-        })
+        let arr = [
+            {
+                '_id': nanoid(),
+                'fileName': 'yes',
+                'timeLength': '10000',
+                'cron': '0/1 * * * *'
+            },
+            {
+                '_id': nanoid(),
+                'fileName': 'no',
+                'timeLength': '10000',
+                'cron': '0/2 * * * *'
+            }
+        ]
+    config.setConfig('promos', arr)
+    })
+
+    app.get('/stop', async (req, res) => {
+        console.log(promoObj)
+        stopPromoJobs()
+            .then(res.sendStatus(200))
     })
 
     app.get('/api/get', (req, res) => {
-        mongoInterface.getPromos()
+        config.getConfig('promos')
         .then(resp => {
             console.log(resp)
             res.json(resp)
         })
-    })
+        .catch(res.sendStatus(404));
+    });
 
     app.get('/api/set', (req, res) => {
-    mongoInterface.setPromos(req.body.params)
+    config.setConfig('promos', req.body.params)
         .then(res.sendStatus(200))
         .catch(res.sendStatus(500));
+    });
+
+    app.get('/config', (req, res) => {
+        config.getConfig('all')
+            .then(resp => {
+                res.send(resp)
+            })
+            .catch(res.sendStatus(404));
+    });
+
+    app.get('config/set/:key:val', (req, res) => {
+        let key = req.body.key;
+        let val = req.body.val;
+        config.setConfig(key, val);
+        res.sendStatus(200);
     })
 
-
-
-
-    /*while (q.length > 0) {
-        qManager(q[0].fileName, q[0].timeLength)
-        timeOut(500)
-    }*/
   
     app.listen(port, (err) => {
         let date = new Date()
