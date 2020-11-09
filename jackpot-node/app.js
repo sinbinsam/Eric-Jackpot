@@ -4,15 +4,21 @@ const   express         = require('express'),
         CronJob         = require('cron').CronJob,
         axios           = require('axios'),
         fs              = require('fs'),
+        moment          = require('moment'),
         //{ poolPromise } = require('./db'),
         //{ sql }         = require('./db'),
         { jackpotQuery }    = require('./jackpotQuery'),
         { promos }          = require('./promos'),
-        port            = process.env.PORT || 9090,
-        config          = require('./configInterface.js'),
-        { nanoid }      = require('nanoid'),
-        playerIp        = '10.160.27.80',
-        app             = express();
+        { tracks1000 }      = require('./promos'),
+        { tracks2500 }      = require('./promos'),
+        { tracks5000 }      = require('./promos'),
+        { tracks10000 }     = require('./promos'),
+        { quietTimes }      = require('./promos'),
+        port                = process.env.PORT || 9090,
+        config              = require('./configInterface.js'),
+        { nanoid }          = require('nanoid'),
+        playerIp            = '10.160.27.80',
+        app                 = express();
 
         app.use(function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -23,7 +29,9 @@ const   express         = require('express'),
 
 var     q = [],
         promoObj = [],
-        playerIsBusy = false;
+        playerIsBusy = false,
+        masterStopped = false,
+        stopped = false;
 
 
 
@@ -36,12 +44,25 @@ var     q = [],
 const jackpot = new CronJob('0/3 * * * *', async function() {
     const d = new Date();
     console.log(d + '3 minute timer: ')
-    if (config.getConfig('jackpot')) {
+    if (masterStopped === false) {
         //sendJackpotQuery();
+    } else {
+        console.log('jackpot query not sent, masterStop is true')
     }
 })
 
 jackpot.start()
+
+const quietTimeChecker = new CronJob('0/1 * * * *', () => {
+    if (moment().isBetween(moment(quietTimes.startTime, 'h:mm a'), moment(quietTimes.endTime, 'h:mm a'))) {
+        stopped = true
+    } else {
+        stopped = false
+    }
+
+    
+})
+quietTimeChecker.start()
 
 
 
@@ -93,114 +114,6 @@ async function sendJackpotQuery() {
         
 }
 
-let tracks1000 = [
-    {
-        fileName: '1000HappenedAgainV1',
-        timeLength: 12000
-    },
-    {
-        fileName: '1000JackpotMomentsAgo',
-        timeLength: 7000
-    },
-    {
-        fileName: '1000JackpotWaytoGo',
-        timeLength: 9000
-    },
-    {
-        fileName: '1000MaybeYouV1',
-        timeLength: 13000
-    },
-    {
-        fileName: '1000SomebodyWon',
-        timeLength: 10000
-    }
-]
-
-let tracks2500 = [
-    {
-        fileName: '2500AllYourFriendsV1',
-        timeLength: 10000
-    },
-    {
-        fileName: '2500FeelAwesomeV1',
-        timeLength: 9000
-    },
-    {
-        fileName: '2500GenericV1',
-        timeLength: 8000
-    },
-    {
-        fileName: '2500ItHappenedAgainV1',
-        timeLength: 9000
-    },
-    {
-        fileName: '2500MomentsAgoV1',
-        timeLength: 7000
-    },
-    {
-        fileName: '2500WhosNextV1',
-        timeLength: 11000
-    }
-]
-
-let tracks5000 = [
-    {
-        fileName: '5000AnotherV1',
-        timeLength: 6000
-    },
-    {
-        fileName: '5000CongratulationsV1',
-        timeLength: 12000
-    },
-    {
-        fileName: '5000MaybeYouV1',
-        timeLength: 10000
-    },
-    {
-        fileName: '5000MomentsAgoV1',
-        timeLength: 9000
-    },
-    {
-        fileName: '5000ThatsHowV1',
-        timeLength: 13000
-    },
-    {
-        fileName: '5000WayToGoV1',
-        timeLength: 5000
-    },
-    {
-        fileName: '5000WhosNextV1',
-        timeLength: 9000
-    }
-]
-
-let tracks10000 = [
-    {
-        fileName: '10000BigCongratsV1',
-        timeLength: 10000
-    },
-    {
-        fileName: '10000CongratulationsV1',
-        timeLength: 10000
-    },
-    {
-        fileName: '10000FingerLakesFortuneV1',
-        timeLength: 10000
-    },
-    {
-        fileName: '10000GenericV1',
-        timeLength: 12000
-    },
-    {
-        fileName: '10000MomentsAgoV1',
-        timeLength: 9000
-    },
-    {
-        fileName: '10000TimetoCelebrateV1',
-        timeLength: 10000
-    }
-]
-
 
 function jackpotConditional(num, gameName) { //num is int of how much won, gameName is string of the game name
     let date = new Date()
@@ -232,31 +145,42 @@ function getRandomInt(max) {
 
 async function sendPlayCommand(track) { //string of filename, dont include .wav
     return new Promise((resolve, reject) => {
-        let date = new Date()
-        console.log(date + ': played track ' + track)
-        resolve() //remove for production
-            /*axios({
-                method: 'get',
-                url: 'http://' + playerIp + ':9000/rest/control?fileName=' + track
-            })
-            .then((res) => {
-                if (res.status === 200) {
-                    resolve();
-                } else {
-                    console.log(date + ': ' + 'player did not respond, is it unplugged?')
-                    reject();
-                }
-            })*/
+        console.log('STOPPED: ' + stopped)
+        if (stopped === false) {
+            let date = new Date()
+            console.log(date + ': played track ' + track)
+            resolve() //remove for production
+                /*axios({
+                    method: 'get',
+                    url: 'http://' + playerIp + ':9000/rest/control?fileName=' + track
+                })
+                .then((res) => {
+                    if (res.status === 200) {
+                        resolve();
+                    } else {
+                        console.log(date + ': ' + 'player did not respond, is it unplugged?')
+                        reject();
+                    }
+                })*/            
+        } else {
+            reject();
+        }
+
     })
 
 }
 
 async function qManager () {
-        if (!playerIsBusy) {
+        if (playerIsBusy === false && masterStopped === false) {
             console.log('called qmanager: ' + q[0].fileName)
             playerIsBusy = true;
             sendPlayCommand(q[0].fileName)
-                //.catch(console.log('there was a problem playing audio'))
+                .then(afterPlay())
+                .catch(err => {
+                    console.log('there was a problem playing audio, it might be stopped')
+                    afterPlay()
+                });
+                    async function afterPlay() {
                     await timeOut(q[0].timeLength)
                     q = q.slice(1);
                     if (q.length > 0) {
@@ -265,9 +189,12 @@ async function qManager () {
                     } else {
                         console.log('stopped watcher')
                         playerIsBusy = false;
+                    }                          
                     }
 
                 
+        } else {
+            return
         }
 }
 
@@ -276,7 +203,7 @@ async function addToQ (obj) {
     qManager();
 }
 
-    app.get('/eric', async (req, res) => {
+    /*app.get('/eric', async (req, res) => {
         let arr = [
             {
                 '_id': nanoid(),
@@ -306,13 +233,13 @@ async function addToQ (obj) {
             console.log(resp)
             res.json(resp)
         })
-        .catch(res.sendStatus(404));
+        .catch(err => res.sendStatus(404));
     });
 
     app.get('/api/set', (req, res) => {
     config.setConfig('promos', req.body.params)
         .then(res.sendStatus(200))
-        .catch(res.sendStatus(500));
+        .catch(err => res.sendStatus(500));
     });
 
     app.get('/config', (req, res) => {
@@ -320,7 +247,7 @@ async function addToQ (obj) {
             .then(resp => {
                 res.send(resp)
             })
-            .catch(res.sendStatus(404));
+            .catch(err => res.sendStatus(404));
     });
 
     app.get('config/set/:key:val', (req, res) => {
@@ -328,6 +255,16 @@ async function addToQ (obj) {
         let val = req.body.val;
         config.setConfig(key, val);
         res.sendStatus(200);
+    })*/
+
+    app.get('/stop', (req, res) => {
+        masterStop = true;
+        res.sendStatus(200);
+    });
+
+    app.get('/start', (req, res) => {
+        masterStop = false;
+        res.sendStatus(200)
     })
 
   
